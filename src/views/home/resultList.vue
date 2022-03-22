@@ -1,14 +1,28 @@
 <template>
   <div class="result-list">
-    <Search :search.sync="search" :options="tableConfig" @searchLoad="searchLoad" :tablename="true" @delRcords="delRcords"></Search>
-    <Table :tableDatas="tableData" :tableConfigs="tableConfig" :totals="total" @currentChange="currentChange" :tablename="true" :IDStr.sync="IDStr" @delRcords="delRcords"></Table>
+    <Search
+      :search.sync="search"
+      :options="tableConfig"
+      @searchLoad="searchLoad"
+      :tablename="'result'"
+      @delRcords="delRcords"
+    ></Search>
+    <Table
+      :tableDatas="tableData"
+      :tableConfigs="tableConfig"
+      :totals="total"
+      @currentChange="currentChange"
+      :tablename="'result'"
+      :IDStr.sync="IDStr"
+      @delRcords="delRcords"
+    ></Table>
   </div>
 </template>
 <script>
 import Search from './components/Search'
 import Table from './components/Table'
 import { load } from '@/api'
-const {getResult, delList} = load
+const { getResult, delList } = load
 export default {
   name: 'resultList',
   components: {
@@ -32,7 +46,7 @@ export default {
     this.getList()
   },
   methods: {
-    getList(){
+    getList() {
       this.tableData = []
       let params = {
         page_num: this.currentPage,
@@ -40,7 +54,7 @@ export default {
         keyword: this.search.inputVal,
         code: '0'
       }
-      getResult(params).then(res=>{
+      getResult(params).then(res => {
         res = res.data
         if (res.code === 0) {
           console.log(res)
@@ -56,17 +70,18 @@ export default {
       })
     },
     // 搜索
-    searchLoad(val){
+    searchLoad(val) {
       this.search = val
       this.getList()
     },
     // 分页
-    currentChange(i){
+    currentChange(i) {
       this.currentPage = i
       this.getList()
     },
     // 删除
-    delRcords(data){
+    delRcords(data) {
+      console.log(data)
       if (data.type === 'select') {
         console.log(this.IDStr)
         if (this.IDStr !== '') {
@@ -83,9 +98,9 @@ export default {
       }
     },
     // 删除方法封装
-    dalFun(data){
+    dalFun(data) {
       console.log(data)
-      delList(data).then(res=>{
+      delList(data).then(res => {
         res = res.data
         if (res.code === 0) {
           this.getList()
@@ -105,7 +120,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.result-list{
+.result-list {
   height: 100%;
   display: flex;
   flex-direction: column;

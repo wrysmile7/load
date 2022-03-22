@@ -66,8 +66,9 @@ export default {
       caughtVisible: false,
       visible: false,
       menus: [
+        { key: 'deviceManage', value: '设备管理', show: false },
         { key: 'loadManage', value: '工具管理', show: false },
-        { key: 'resultList', value: 'GJ结果列表', show: false },
+        { key: 'resultList', value: '内网定位结果列表', show: false },
         { key: 'IPList', value: '主机端口扫描列表', show: false }
       ],
       dialogList: ['网段扫描','IP修改'],
@@ -99,7 +100,7 @@ export default {
     this.getIP()
   },
   mounted () {
-    // this.ws = new WebSocket('ws://${baseURL}/scan_host/1')
+    // this.ws = new WebSocket('ws://${baseURL.replace('http://','')}/scan_host/1')
     // this.ws.onopen = this.open
     // console.log(this.ws)
   },
@@ -134,7 +135,7 @@ export default {
     // 开始抓包
     caughtStart(){
       this.caughtState = true
-      this.ws = new WebSocket(`ws://${baseURL}/get_pcap_file/1`)
+      this.ws = new WebSocket(`ws://${baseURL.replace('http://','')}/get_pcap_file/1`)
       console.log(this.ws)
       this.executeState = true
       this.ws.onopen = this.onOpen

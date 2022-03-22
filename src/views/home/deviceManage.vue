@@ -1,20 +1,20 @@
 <template>
-  <div class="result-list">
+  <div class="device-list">
     <Search
       :search.sync="search"
       :options="tableConfig"
       @searchLoad="searchLoad"
-      :tablename="'port'"
-      @delIPPost="delIPPost"
+      :tablename="'device'"
+      @delDevices="delDevices"
     ></Search>
     <Table
       :tableDatas="tableData"
       :tableConfigs="tableConfig"
       :totals="total"
       @currentChange="currentChange"
-      :tablename="'port'"
+      :tablename="'device'"
       :IDStr.sync="IDStr"
-      @delIPPost="delIPPost"
+      @delDevices="delDevices"
     ></Table>
   </div>
 </template>
@@ -22,9 +22,10 @@
 import Search from './components/Search'
 import Table from './components/Table'
 import { load } from '@/api'
-const { getResult, delList } = load
+import bus from '@/utils/bus'
+const { getDeviceList, delDevices } = load
 export default {
-  name: 'IPList',
+  name: 'deviceManage',
   components: {
     Search,
     Table
@@ -45,6 +46,11 @@ export default {
   created() {
     this.getList()
   },
+  mounted() {
+    bus.$on('addSuccess', () => {
+      this.getList()
+    })
+  },
   methods: {
     getList() {
       this.tableData = []
@@ -52,12 +58,11 @@ export default {
         page_num: this.currentPage,
         fields: this.search.selectVal,
         keyword: this.search.inputVal,
-        code: '1'
+        code: '0'
       }
-      getResult(params).then(res => {
+      getDeviceList(params).then(res => {
         res = res.data
         if (res.code === 0) {
-          console.log(res)
           this.total = res.total
           this.tableData = res.DataList
           this.tableConfig = Object.keys(res.DataList[0])
@@ -80,11 +85,11 @@ export default {
       this.getList()
     },
     // 删除
-    delIPPost(data) {
+    delDevices(data) {
       if (data.type === 'select') {
         console.log(this.IDStr)
         if (this.IDStr !== '') {
-          data['select'] = this.IDStr
+          data['device_id'] = this.IDStr
           this.dalFun(data)
         } else {
           this.$message({
@@ -99,7 +104,7 @@ export default {
     // 删除方法封装
     dalFun(data) {
       console.log(data)
-      delList(data).then(res => {
+      delDevices(data).then(res => {
         res = res.data
         if (res.code === 0) {
           this.getList()
@@ -119,7 +124,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.result-list {
+.device-list {
   height: 100%;
   display: flex;
   flex-direction: column;

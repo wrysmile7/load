@@ -75,6 +75,46 @@ const energy = {
       method: 'get',
       params
     })
+  },
+  // 获取设备列表
+  getDeviceList (params) {
+    return service({
+      url: `${baseURL}/device/display`,
+      method: 'get',
+      params
+    })
+  },
+  // 新增设备
+  addDevices (data) {
+    return service({
+      url: `${baseURL}/device/display`,
+      method: 'post',
+      data
+    })
+  },
+  // 删除设备
+  delDevices (params) {
+    return service({
+      url: `${baseURL}/device/edit`,
+      method: 'get',
+      params
+    })
+  },
+  // 编辑设备
+  editDevices (data) {
+    return service({
+      url: `${baseURL}/device/edit`,
+      method: 'post',
+      data
+    })
+  },
+  // 获取设备下拉列表
+  getDevices (params) {
+    return service({
+      url: `${baseURL}/device/list`,
+      method: 'get',
+      params
+    })
   }
 }
 

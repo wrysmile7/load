@@ -27,6 +27,12 @@ export default new Router({
           component: () => import('@/views/home/loadManage')
         },
         {
+          path: '/deviceManage',
+          name: 'deviceManage',
+          meta: { title: '' },
+          component: () => import('@/views/home/deviceManage')
+        },
+        {
           path: '/resultList',
           name: 'resultList',
           meta: { title: '' },

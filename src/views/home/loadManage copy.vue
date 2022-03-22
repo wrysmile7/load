@@ -455,7 +455,7 @@ export default {
           this.executeData.load_type = 'customize'
           this.executeData.load_classify = classifyName
         }
-        this.ws = new WebSocket(`ws://${baseURL}/load/execute/${localStorage.getItem('only')}`)
+        this.ws = new WebSocket(`ws://${baseURL.replace('http://','')}/load/execute/${localStorage.getItem('only')}`)
         console.log(this.ws)
         this.executeState = true
         this.ws.onopen = this.onOpen

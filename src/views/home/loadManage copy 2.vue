@@ -1,53 +1,74 @@
 <!-- energy -->
 <template>
   <div class="load-manage">
-    <div class="search-box">
-      <el-input
-        placeholder="请输入设备关键字"
-        v-model="keyword"
-        @keyup.enter.native="getLoad()"
-      >
-        <el-button
-          slot="append"
-          icon="el-icon-search"
-          @click="getLoad()"
-        ></el-button>
-      </el-input>
-    </div>
-    <!-- 工具列表 -->
-    <div class="content-box">
-      <div
-        class="GJ"
-        :class="index === '基础工具' ? 'basis' : 'intranet'"
-        v-for="(item, index) in classifyData"
-        :key="index"
-      >
-        <div class="head">
-          <span>{{ index }}</span>
+    <!-- 基础工具 -->
+    <div class="GJ basis">
+      <div class="box-scroll">
+        <div class="type-box" @click="checkClassify(classifyData.basic)">
+          <div class="bar">
+            <i v-for="(ite, ind) in classifyData.basic.load" :key="ind">
+              <!-- <img :src="require('../../assets/images/load/'+ite.name+'.png')" alt="" srcset="" onerror="defaultImg()"> -->
+              <img src="../../assets/images/load/sub_04.png" alt="" srcset="" />
+            </i>
+          </div>
+          <p>{{ classifyData.basic.name }}</p>
         </div>
-        <div class="box-scroll">
-          <div class="type-box" v-if="index !== '基础工具'">
-            <div class="bar add" @click="addLoadFun(index)"></div>
-            <p>新增工具</p>
+      </div>
+    </div>
+    <!-- 内网定位工具 -->
+    <div class="GJ intranet">
+      <div class="box-scroll">
+        <!-- <div class="type-box">
+          <div class="bar add" @click="addVisible = true"></div>
+          <p>新增</p>
+        </div> -->
+        <div
+          class="type-box"
+          v-for="(item, index) in classifyData.intranet"
+          :key="index"
+        >
+          <div class="bar scroll-none" @click="checkClassify(item)">
+            <i v-for="(ite, ind) in item.load" :key="ind">
+              <!-- <img :src="require('../../assets/images/load/'+ite.name+'.png')" alt="" srcset="" onerror="defaultImg()"> -->
+              <img src="../../assets/images/load/sub_04.png" alt="" srcset="" />
+            </i>
           </div>
-          <div
-            class="type-box"
-            @click="checkClassify(ite)"
-            v-for="(ite, ind) in item"
-            :key="ind"
-          >
-            <div class="bar">
-              <i v-for="(it, i) in ite.load" :key="i">
-                <!-- <img :src="require('../../assets/images/load/'+ite.name+'.png')" alt="" srcset="" onerror="defaultImg()"> -->
-                <img
-                  src="../../assets/images/load/sub_04.png"
-                  alt=""
-                  srcset=""
-                />
-              </i>
-            </div>
-            <p>{{ ite.device_name }}</p>
+          <p>{{ item.name }}</p>
+        </div>
+      </div>
+    </div>
+    <!-- ZCGJ工具 -->
+    <div class="GJ custom">
+      <div class="head">
+        <span>ZCGJ工具</span>
+        <!-- <el-pagination
+          layout="prev, pager, next"
+          :total="zcgj.total"
+          prev-text="上一页"
+          next-text="下一页"
+          :page-size="15"
+          :current-page="zcgj.currentPage"
+          @current-change="currentChange"
+        >
+        </el-pagination> -->
+      </div>
+      <div class="box-scroll">
+        <!-- <div class="type-box">
+          <div class="bar add" @click="addVisible = true"></div>
+          <p>新增</p>
+        </div> -->
+        <div
+          class="type-box"
+          v-for="(item, index) in classifyData.customize"
+          :key="index"
+        >
+          <div class="bar scroll-none" @click="checkClassify(item)">
+            <i v-for="(ite, ind) in item.load" :key="ind">
+              <!-- <img :src="require('../../assets/images/load/'+ite.name+'.png')" alt="" srcset="" onerror="defaultImg()"> -->
+              <img src="../../assets/images/load/sub_04.png" alt="" srcset="" />
+            </i>
           </div>
+          <p>{{ item.name }}</p>
         </div>
       </div>
     </div>
@@ -58,7 +79,7 @@
       @refreshLoad="refreshLoad"
     ></Classify>
     <!-- 新增分类弹框 -->
-    <!-- <el-dialog
+    <el-dialog
       :visible.sync="addVisible"
       width="300px"
       :show-close="false"
@@ -76,13 +97,7 @@
           >
         </div>
       </div>
-    </el-dialog> -->
-    <!-- 新增工具弹框 -->
-    <AddLoad
-      :addLoadVisible.sync="addLoadVisible"
-      @addSuccess="refreshLoad"
-      :forms="form"
-    ></AddLoad>
+    </el-dialog>
   </div>
 </template>
 
@@ -91,19 +106,20 @@ import baseURL from '@/api/base'
 import { load } from '@/api'
 import { downloadByBlob } from '@/utils/download'
 import Classify from './components/classify.vue'
-import AddLoad from './components/addLoad.vue'
 
 const { getLoad, downloadConf, downloadResult, classifyHandle, delLoad } = load
 
 export default {
   name: 'loadManage',
   components: {
-    Classify,
-    AddLoad
+    Classify: Classify
   },
   data() {
     return {
-      keyword: '',
+      zcgj: {
+        total: 0,
+        currentPage: 1
+      },
       dialogVisible: false,
       addLoadVisible: false,
       baseURL: baseURL,
@@ -111,7 +127,11 @@ export default {
       classifyName: '',
       addVisible: false,
       dialogData: {},
-      classifyData: {},
+      classifyData: {
+        basic: [],
+        intranet: [],
+        customize: []
+      },
       defaultClassify: {
         name: '基础工具',
         load: []
@@ -146,11 +166,6 @@ export default {
   },
   mounted() {},
   methods: {
-    // 新增工具
-    addLoadFun(val) {
-      this.form.class = val
-      this.addLoadVisible = true
-    },
     // 刷新页面数据
     refreshLoad() {
       this.getLoad()
@@ -202,10 +217,17 @@ export default {
     },
     getLoad() {
       // 获取载荷列表
-      getLoad({ keyword: this.keyword }).then(res => {
+      getLoad().then(res => {
         res = res.data
         if (res.code === 0) {
-          this.classifyData = res.DataList
+          this.classifyData = {
+            basic: {
+              name: 'basic',
+              load: res.DataList.basic
+            },
+            intranet: {},
+            customize: res.DataList.customize
+          }
         }
         console.log(this.classifyData)
       })
@@ -223,113 +245,92 @@ export default {
 .load-manage {
   width: 100%;
   height: 100%;
-  padding: 10px 0 40px 0;
+  padding: 40px 0;
   box-sizing: border-box;
   display: flex;
-  flex-direction: column;
-  .search-box {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 20px;
-    /deep/ .el-input-group {
-      width: 240px;
-    }
-    /deep/ .el-input__inner {
-      background: transparent;
-      height: 30px;
-      border-color: #0671d7;
-      border-radius: 0;
+  .GJ {
+    height: 100%;
+    border: 1px solid #3db9fd;
+    padding-top: 40px;
+    position: relative;
+    .head {
+      width: 100%;
+      height: 40px;
+      font-size: 18px;
+      font-weight: bold;
+      background-image: linear-gradient(#0671d7, #004384, #000);
       color: #fff;
-      &::-webkit-input-placeholder {
-        color: #fff;
-      }
+      line-height: 35px;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
-    /deep/ .el-input-group__append {
-      background: transparent;
-      border-color: #0671d7;
-      border-radius: 0;
-      color: #fff;
-    }
-    /deep/ .el-button {
-      width: 30px;
-      padding: 0;
-      &:hover {
-        color: #3db9fd;
-      }
-    }
-  }
-  .content-box {
-    height: calc(100% - 50px);
-    display: flex;
-    .GJ {
+    .box-scroll {
+      width: 100%;
       height: 100%;
-      border: 1px solid #3db9fd;
-      padding-top: 40px;
-      position: relative;
-      .head {
-        width: 100%;
-        height: 40px;
-        font-size: 18px;
-        font-weight: bold;
-        background-image: linear-gradient(#0671d7, #004384, #000);
-        color: #fff;
-        line-height: 35px;
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-      .box-scroll {
-        width: 100%;
-        height: 100%;
-        overflow-y: auto;
-        display: flex;
-        .type-box {
+      overflow-y: auto;
+      display: flex;
+      .type-box {
+        width: 252px;
+        height: 302px;
+        margin: 35px;
+        .bar {
           width: 252px;
           height: 302px;
-          margin: 35px;
-          .bar {
-            width: 252px;
-            height: 302px;
-            background: url('../../assets/images/bar_s.png') no-repeat;
-            cursor: pointer;
-            padding: 10px;
-            overflow-y: auto;
-            > i {
-              width: 50px;
-              height: 50px;
-              float: left;
-              margin: 13px;
-              > img {
-                width: 100%;
-                height: 100%;
-              }
+          background: url('../../assets/images/bar_s.png') no-repeat;
+          cursor: pointer;
+          padding: 10px;
+          overflow-y: auto;
+          > i {
+            width: 50px;
+            height: 50px;
+            float: left;
+            margin: 13px;
+            > img {
+              width: 100%;
+              height: 100%;
             }
           }
-          .add {
-            background: url('../../assets/images/bar_add.png') no-repeat;
-          }
-          > p {
-            color: #fff;
-            margin: 5px 0;
-          }
+        }
+        .add {
+          background: url('../../assets/images/bar_add.png') no-repeat;
+        }
+        > p {
+          color: #fff;
+          margin: 5px 0;
         }
       }
     }
-    .basis {
-      width: 350px;
-      .box-scroll {
-        flex-direction: column;
-        align-items: center;
-      }
+  }
+  .basis {
+    width: 350px;
+    .box-scroll {
+      flex-direction: column;
+      align-items: center;
     }
-    .intranet {
-      flex: 1;
-      margin-left: 40px;
-      .box-scroll {
-        flex-wrap: wrap;
-      }
+    &::before {
+      content: '基础工具';
     }
+  }
+  .intranet {
+    flex: 1;
+    margin-left: 40px;
+    .box-scroll {
+      flex-wrap: wrap;
+    }
+    &::before {
+      content: '内网定位工具';
+    }
+  }
+  .custom {
+    flex: 1;
+    margin-left: 40px;
+    .box-scroll {
+      flex-wrap: wrap;
+    }
+    // &::before {
+    //   content: 'ZCGJ工具';
+    // }
   }
   .addfirm {
     .add-box {
